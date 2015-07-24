@@ -13,24 +13,6 @@ Perfectly Matched Layers are similar to Absorbing Boundary Conditions in that th
 	\centering
 	\begin{subfigure}{0.5\textwidth}
 		\centering
-		\includegraphics[width=0.8\textwidth]{Images/Automated.png}
-		\caption{Algorithm Output for $\omega=100$}
-		\label{fig:Automation-small-omega}
-	\end{subfigure}%
-	\begin{subfigure}{0.5\textwidth}
-		\centering
-		\includegraphics[width=0.8\textwidth]{Images/Automated-Fail.png}
-		\caption{Algorithm Output for $\omega=50$}
-		\label{fig:Automation-large-omega}
-	\end{subfigure}
-	\caption{Algorithm Outputs for two angular frequencies}
-	\label{fig:Automation-Success-Failure}
-\end{figure}
-
-\begin{figure}[ht]
-	\centering
-	\begin{subfigure}{0.5\textwidth}
-		\centering
 		\includegraphics[width=0.8\textwidth]{Images/ABC.png}
 		\caption{Absorbing Boundary Conditions}
 		\label{fig:ABC}
@@ -68,14 +50,16 @@ There is a chicken-and-egg problem in choosing the best coefficients of each PML
 Given the specified PML layer (top, bottom, left, or right in two dimensions), as well as a guess as to what the size is, we can refine our guess until it no longer changes (which is possible because we have discretized our computational domain into finite elements) by taking the largest wavelength within the region. This consists of three steps:
 
 \begin{enumerate}
-\item Get $c$ = the maximum $V_p$ within the hypothetical PML of size $\delta$. We do not need to check $V_s$ because $V_p > V_s$ in both acoustic and elastic regions.
-\item Let the new size be $\delta' = 1.5 c / \omega$.
+\item Get $c$ = the maximum $V_p$ within the hypothetical PML of size $\delta$. We do not need to check $V_s$ because $V_p > V_s$ in both acoustic and elastic regions. We then have that the wavelength $\lambda = \frac{c (2 \pi)}{\omega}$.
+\item Let the new size be $\delta =  M \lambda$ with $M$ a constant approximately $1.5$ to give the incident wave enough space to properly attenuate to null.
 \item Repeat until $\delta' = \delta$
 \end{enumerate}
 
+Because this algorithm is independent of human error, it guarantees that the PML Layer is thick enough that the incident waves arriving from the non-PML region get absorbed completely. 
 
-However, there is an inherent problems with this iterative algorithm: it will stop at the first local solution. Therefore, even if there is a region with a large wave propagation velocity
-not near the boundary edge, then it may affect the size of the output PML layer, particularly when the angular frequency of the source $\omega$ is small. 
+However, because the size of the PML is proportional to the wavelength $\lambda = \frac{c (2 \pi)}{\omega}$, it is thus proportional to $\omega^{-1}$ and susceptible to significant increases at small angular frequencies $\omega$ for the source signal. See Figure ~\ref{fig:Automation-Success-Failure} as an example.
+
+Another problem with the algorithm is that will stop at the first local solution. Therefore, even if there is a region with a large wave propagation velocity not near the boundary edge, then it may affect the size of the output PML layer, particularly when the angular frequency of the source $\omega$ is small. Assuming though, that there are no abnormally large propagation velocities, greater than $8000 m/s$ in a $3000$ x $3000 m^2$ domain, then this problem should not normally arise.
 
 \begin{figure}[ht]
 	\centering
