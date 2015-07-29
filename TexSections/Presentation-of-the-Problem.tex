@@ -27,14 +27,26 @@ The reason it is also known as solving the wave equation is that we frequently w
 
 $$\nabla u(x,t) - \frac{1}{c(x)^2} \frac{\partial^2 u(x,t)}{\partial t^2} = f(x,t)$$
 
-where $u(x,t)$ is the pressure, dependent on space and time, $c$ is the wave propagation velocity, dependent on space, and $f(x,t)$ is the source signal.
+where $u(x,t)$ is the pressure, dependent on space and time, $c(x)$ is the wave propagation velocity, dependent on space, and $f(x,t)$ is the source signal.
 
 
-For a complex domain with regions of different physical characteristics, it becomes necessary to simulate the solutions numerically in order to visualize the changes in pressure. We give here examples of the solutions that the Hou10ni code at Inria Magique3D produces, in both the time and frequency domain: 
+For a complex domain with regions of different physical characteristics, it becomes necessary to simulate the solutions numerically in order to visualize the changes in pressure. We give here examples of the solutions that the Hou10ni and Elasticus programs at Inria Magique3D produce, in the frequency and time domain in Figures \ref{fig:Water-Frequency},\ref{fig:Water-Time}: 
 
-INCLUDE IMAGE SEQUENCE OF TIME DOMAIN SIMULATION HERE
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Images/Water-Frequency.png}
+	\caption{Solution to Acoustic Wave Equation in Frequency Domain by Hou10ni program}
+	\label{fig:Water-Frequency}
+\end{figure}
 
-INCLUDE IMAGE OF FREQUENCY DOMAIN SIMULATION HERE
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{Images/time.png}
+	\caption{Solution to Elastic Wave Equation in Time Domain by Elasticus program}
+	\label{fig:Water-Time}
+\end{figure}
+
 
 \subsection{Infinite Domains: Perfectly Matched Layers}
 
