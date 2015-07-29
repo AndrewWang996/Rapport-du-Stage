@@ -15,6 +15,7 @@
 \usepackage{float}
 \usepackage{subcaption}
 \usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
 
 \author{Andy Wang}
 \title{Rapport du Stage}
@@ -25,12 +26,18 @@
 }
 \pagestyle{fancy}
 
-\lstset{language=[90]Fortran,
-  basicstyle=\ttfamily,
-  keywordstyle=\color{red},
-  commentstyle=\color{green},
-  morecomment=[l]{!\ }% Comment only with space after !
+\lstdefinestyle{fortranStyle}{
+	language=[90]Fortran,
+	keywordstyle=\color{red},
+	commentstyle=\color{green},
+	morecomment=[l]{!\ },
+	numbersep=10pt,
+	tabsize=4,
+	showspaces=false,
+	showstringspaces=false,
+	basicstyle=\ttfamily
 }
+
 \begin{document}
 \maketitle
 
