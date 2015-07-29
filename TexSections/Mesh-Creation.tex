@@ -1,5 +1,5 @@
 \newpage
-\section{Mesh Creation}
+\section{Mesh Creation} \label{Mesh-Creation}
 
 In order to solve the wave equation in arbitrary media, both acoustic and elastic, it is necessary to create a mesh of elements, also known as simplexes, that allows the computation to be split into a collection of smaller and simpler computations on each element; the smaller solutions can then be collected into the overall solution given those arbitrary media. 
 
@@ -150,6 +150,32 @@ Generating the facets on the initial and last face is a little more difficult an
 \caption{Facets on initial face, Facets between faces, Slope of salt dome}
 \label{fig:facets}
 \end{figure}
+
+
+\subsection{Mesh Elements}
+
+Given the .poly file, we are able to call either triangle in 2 dimensions or tetgen in 3 dimensions to create the .mesh, .ele, etc files containing all the elements and their information. 
+
+In 2 dimensions we call:
+\begin{center}
+\textbf{triangle -pqneAa file.poly}
+\end{center}
+
+
+In 3 dimensions we call:
+\begin{center}
+\centering{\textbf{tetgen -pqneAa file.poly}}
+\end{center}
+
+And we get the files, viewable by either the Showme program that comes with Triangle software, or the Tetview program that comes separately from Tetgen. Here is Figure ~\ref{fig:Elements} displaying the 3-dimensional mesh elements:
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Images/Elements.png}
+	\caption{Elements in 3 Dimensions, as shown by Tetview}
+	\label{fig:Elements}
+\end{figure}
+
 
 
 

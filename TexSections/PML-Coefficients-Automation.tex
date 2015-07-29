@@ -1,5 +1,5 @@
 \newpage
-\section{Automation of PML Coefficients}
+\section{Automation of PML Coefficients} \label{PML-Coefficient-Automation}
 
 Because there is a separate Perfectly Matched Layer at every boundary face of the domain (4 sides in two dimensions and 6 faces in three dimensions), it is necessary to choose the coefficients that describe the size and strength of each PML at each face. Since choosing the coefficients by relying on intuition can often result in errors, and entering them manually for each test run can be time consuming, we present an algorithm for determining the PML coefficients given the set of finite elements (triangles in two dimensions and tetrahedrons in three dimensions), as well as their individual physical characteristics ($V_p, V_s$, etc).
 
@@ -39,9 +39,10 @@ where $\lambda$ is the largest wavelength within the PML, $c$ is the largest wav
 
 \begin{figure}[ht]
 	\includegraphics[width=\textwidth]{Images/param.pdf}
-	\caption{Images showing each separate region with its individual physical characteristics}
+	\caption{Images showing each separate region with its individual physical characteristics \protect\footnotemark}
 	\label{fig:physical-characteristics}
 \end{figure}
+\footnotetext{Note that the 2nd and 4th layers are both named "Water Sand" although the 4th layer contains oil and thus has different physical characteristics.}
 
 \subsection{Algorithm}
 
@@ -55,7 +56,7 @@ Given the specified PML layer (top, bottom, left, or right in two dimensions), a
 \item Repeat until $\delta' = \delta$
 \end{enumerate}
 
-Because this algorithm is independent of human error, it guarantees that the PML Layer is thick enough that the incident waves arriving from the non-PML region get absorbed completely. 
+Although it may appear that the algorithm may generate excessively large PML layers at the side boundaries of Figure ~\ref{fig:Automation-small-omega}, this is because the high P-wave propagation velocity of the salt dome (see Figure ~\ref{fig:Physical-Characteristics}) extends to the bottom corners. Because this algorithm is independent of human error, it guarantees that the PML Layer is thick enough that the incident waves arriving from the non-PML region get absorbed completely. 
 
 However, because the size of the PML is proportional to the wavelength $\lambda = \frac{c (2 \pi)}{\omega}$, it is thus proportional to $\omega^{-1}$ and susceptible to significant increases at small angular frequencies $\omega$ for the source signal. See Figure ~\ref{fig:Automation-Success-Failure} as an example.
 
@@ -79,9 +80,14 @@ Another problem with the algorithm is that will stop at the first local solution
 	\label{fig:Automation-Success-Failure}
 \end{figure}
 
+
+A natural question to ask is whether it is possible to assign a PML only to certain elements in the mesh, not to entire layers around the boundary. Julien Diaz at Magique3D has said that this will cause the PML to be more unstable and will not work, although I have not tested this hypothesis.
+
+
 \newpage
 
 \subsection{Code [Fortran90]}
+\lstset{basicstyle=\small, style=fortranStyle}
 \begin{lstlisting}
 SUBROUTINE calcPMLCoefficients
     ! written by Andy Wang
@@ -98,7 +104,6 @@ SUBROUTINE calcPMLCoefficients
     REAL(kind=dp) :: vp, maxL, lambda
     REAL(kind=dp) :: mult, mlambda      ! mult = L / lambda
     REAL(kind=dp) :: centX, centY
-
     REAL(kind=dp) :: yb, yt, xl, xr
     REAL(kind=dp) :: dyb, dyt, dxl, dxr
     REAL(kind=dp) :: ndyb, ndyt, ndxl, ndxr
@@ -150,7 +155,6 @@ SUBROUTINE calcPMLCoefficients
     dxl = maxL
     dxr = maxL
 
-    compte = 1
     DO      ! INFINITE LOOP, exiting upon stable condition
             ! in other words:
             ! when projected PML limits at top, bottom, left, right stabilize
@@ -200,7 +204,6 @@ SUBROUTINE calcPMLCoefficients
                 ENDIF
             ENDIF
         ENDDO
-		
 
         IF ((dyb-ndyb) + (dyt-ndyt) + (dxl-ndxl) + (dxr-ndxr) .LT. eps) THEN
             dyb = ndyb
@@ -224,7 +227,7 @@ SUBROUTINE calcPMLCoefficients
     CALL calcZetaCoefficient(pmlayer%coeff_t, ndyt)
     CALL calcZetaCoefficient(pmlayer%coeff_l, ndxl)
     CALL calcZetaCoefficient(pmlayer%coeff_r, ndxr)
-	
+    
     CONTAINS
         SUBROUTINE calcZetaCoefficient(var, delta)
             REAL(kind=dp) :: delta, c, R, var
@@ -232,7 +235,7 @@ SUBROUTINE calcPMLCoefficients
             c = delta * omega / (2 * pi * mult)
             var = (3 * c) / (2 * (delta ** 3)) * LOG(1 / R)
         END SUBROUTINE calcZetaCoefficient
-
+        
 END SUBROUTINE calcPMLCoefficients
 \end{lstlisting}
 
