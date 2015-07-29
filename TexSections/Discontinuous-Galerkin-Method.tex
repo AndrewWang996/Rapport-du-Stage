@@ -15,28 +15,44 @@ The Discontinuous Galerkin Method is a method of resolving differential equation
 
 "Solving differential equations" (such as the acoustic wave equation) is a term that is commonly thrown around without much attention to the essential components in numerical analysis. For the common case, it means: \textbf{given a domain} (for example $[0,10]$ in one dimension or the unit sphere in three dimensions), we \textbf{take a mesh} (set of segments, triangles, tetrahedrons, etc) that covers the domain, and find the values of the variable we are solving for at \textbf{certain moments in time} and at \textbf{certain points in the domain} that are determined by the mesh.
 
-The Discontinuous Galerkin Method is a method to "solve differential equations". It can be considered a combination of Finite Element Methods (Continuous Galerkin) and Finite Volume Methods. In other words, Discontinuous Galerkin methods are finite element methods that use discontinuous basis functions, thus acquiring more robustness for discontinuous processes. Like the Finite Volume Methods, Discontinuous Galerkin methods calculate surface integrals and fluxes of discontinuous terms.
+The Discontinuous Galerkin Method is a method to "solve differential equations". It can be considered a combination of Finite Element Methods (Continuous Galerkin) and Finite Volume Methods. In other words, Discontinuous Galerkin methods are finite element methods that use discontinuous basis functions, thus acquiring more robustness for discontinuous processes. Because the base function polynomials are discontinuous and do not extend over a large stencil,the  Discontinuous Galerkin Method is easily parallelized, and the Mass Matrix is able to be inverted by blocks. Like the Finite Volume Methods, Discontinuous Galerkin methods calculate surface integrals and fluxes of discontinuous terms.
 
 \subsection{Basis Functions}
 
 In Discontinuous Galerkin Methods, we can raise the accuracy of our solution by increasing the order of the polynomials that approximate it. 
 
-The way we represent our solution to the differential equation, is a group of polynomials for each element in the mesh; each polynomial takes a value of $1$ at a certain point and $0$ at all the other points defined in the element. This way, when we define the solution as the linear combination of those functions, we can easily determine the value at each node from the coefficients in front of each function.
+The way we represent our solution to the differential equation, is a group of polynomials for each element in the mesh; each polynomial takes a value of $1$ at a certain point called a node, and $0$ at all the other nodes defined in the element. Each base function is discontinuous in that it can take nonzero values inside its own element, but takes the value $0$ on other elements. This is the reason the method is called Discontinuous Galerkin and also the fundamental reason it is easily parallelizable. We can thus define the solution as the linear combination of those functions:
 
-For reference, let us use as an example the 2-dimensional reference element. The nodes are as shown:
-
-
-
-
-INCLUDE IMAGE HERE
+$$u(x,t) = \sum\limits_{i=0}^n c_i(t)\phi_i(x)$$ 
+where $c_i(t)$ is merely a time-dependent coefficient and $\phi_i(x)$ is the space-dependent base function defined solely on its corresponding element.
 
 
-Given an order $p$, the specific nodes are defined as:
+Here we let the use of the hat in $\hat{F}$ represent the reference element, and the lack of use represent the actual element.
 
-$(\hat{x_i}, \hat{y_j}, \hat{y_k}) = \left( \frac{i}{p}, \frac{j}{p}, \frac{k}{p} \right)$ for each 
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Images/Reference-Elements.png}
+	\caption{Reference Elements transformed to the actual Elements}
+	\label{fig:Reference-Elements}
+\end{figure}
+
+
+Given an order $p$, the specific nodes on the reference element are defined as:
+
+$$(\hat{x_i}, \hat{y_j}, \hat{z_k}) = \left( \frac{i}{p}, \frac{j}{p}, \frac{k}{p} \right) \text{ for each } (i,j,k) \in \mathbb{N}^3 \mid i + j + k \leq p$$ 
 
 each element has a group of polynomials of a certain order defined on it. Those polynomials are defined such that, for certain nodes.
 
+
+In order to calculate the base functions for the arbitrary order $p$, we can use linear algebra. 
+
+
+Namely, we wish to find the base function polynomials of the form:
+
+$$\sum\limits_{i+j+k \leq p} C_{i,j,k} x^i y^j z^k $$. 
+
+Translate
 
 \subsection{Decomposing u(x,t)}
 
