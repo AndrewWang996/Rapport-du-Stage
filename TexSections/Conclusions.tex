@@ -1,9 +1,26 @@
 \newpage
 \section{Conclusions}
 
-It seems that the mathematical complexity of seismic imaging algorithms derives from the variety of differential equations (acoustic, elastic), the variety of absorbing boundary conditions or Perfectly Matched Layers, the variety of environments (TTI, VTI, anisotropic domains), that each deserve separate treatments. Especially for the unique differential equations, there exist very unique ways to solve each one and make speed improvements in the Finite Element or Discontinuous Galerkin or Finite Volume or Finite Difference Methods. Overall, no technique has yet been developed to deal with arbitrary differential equations. 
+In this paper we have discussed several algorithms and techniques. Here in the conclusions, we summarize the conclusions that we have discovered.
+
+\section{Solving Differential Equations}
+
+The mathematical complexity of seismic imaging algorithms derives from the variety of differential equations (acoustic, elastic), the variety of absorbing boundary conditions or Perfectly Matched Layers, the variety of environments (Tilted Transversely Isotropic, Vertical Transversely Isotropic, anisotropic domains), that each deserve separate treatments. Especially for the unique differential equations, there exist very unique ways to solve each one. But especially, the complexity derives from the variety of differential equations and the ways to solve them. For example, Green's first theorem is used to decompose the laplacian operator in the acoustic wave equation, and precomputing integrals on the reference element to obtain simple block matrices is more feasible in the Discontinuous Galerkin Method. In summary, no technique has yet been developed to deal with arbitrary differential equations. 
 
 
-\section{Differential Equations}
+\section{PML Coefficient Automation}
 
-From 
+Perfectly Matched Layers, an effective way to absorb incoming waves that does not produce reflections at its interface with the non-PML region, needs nonetheless to be large enough to attenuate incoming waves to a negligible amplitude. In example domains with realistic physical characteristics (with a wave propagation velocity around $1000-1600 m/s$), the algorithm presented in this paper in Section \ref{PML-Coefficient-Automation} works very well for medium to high frequencies $> 100$. There remain errors in the algorithm that arise due to large propagation velocities relative to domain size, but it is an effective algorithm for quickly testing multiple simulations with a variety of domains.
+
+
+\section{Mesh Creation}
+
+The algorithm presented in Section \ref{Mesh-Creation} is able to create meshes in two and three dimensions. In either case, it allows the user to specify the function that defines the interface between the water and water sand layers. In the three dimensional case, the user is able to use a separate function to define the slope of the salt dome in the Y-axis direction.
+
+
+
+
+
+
+
+
