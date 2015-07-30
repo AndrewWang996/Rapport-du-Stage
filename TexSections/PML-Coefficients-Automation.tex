@@ -56,7 +56,7 @@ Given the specified PML layer (top, bottom, left, or right in two dimensions), a
 \item Repeat until $\delta' = \delta$
 \end{enumerate}
 
-Although it may appear that the algorithm may generate excessively large PML layers at the side boundaries of Figure ~\ref{fig:Automation-small-omega}, this is because the high P-wave propagation velocity of the salt dome (see Figure ~\ref{fig:Physical-Characteristics}) extends to the bottom corners. Because this algorithm is independent of human error, it guarantees that the PML Layer is thick enough that the incident waves arriving from the non-PML region get absorbed completely. 
+Although it may appear that the algorithm may generate excessively large PML layers at the side boundaries of Figure ~\ref{fig:Automation-small-omega}, this is because the high P-wave propagation velocity of the salt dome (see Figure ~\ref{fig:physical-characteristics}) extends to the bottom corners. Because this algorithm is independent of human error, it guarantees that the PML Layer is thick enough that the incident waves arriving from the non-PML region get absorbed completely. 
 
 However, because the size of the PML is proportional to the wavelength $\lambda = \frac{c (2 \pi)}{\omega}$, it is thus proportional to $\omega^{-1}$ and susceptible to significant increases at small angular frequencies $\omega$ for the source signal. See Figure ~\ref{fig:Automation-Success-Failure} as an example.
 
@@ -87,18 +87,15 @@ A natural question to ask is whether it is possible to assign a PML only to cert
 \newpage
 
 \subsection{Code [Fortran90]}
-\lstset{basicstyle=\small, style=fortranStyle}
+\lstset{style=fortranStyle}
 \begin{lstlisting}
 SUBROUTINE calcPMLCoefficients
-    ! written by Andy Wang
     ! currently only works on 2D
-
     USE PRECISION
     USE constant
     USE mesh
     USE pml
     USE DATA
-
     IMPLICIT NONE
 	
     REAL(kind=dp) :: vp, maxL, lambda
@@ -204,7 +201,6 @@ SUBROUTINE calcPMLCoefficients
                 ENDIF
             ENDIF
         ENDDO
-
         IF ((dyb-ndyb) + (dyt-ndyt) + (dxl-ndxl) + (dxr-ndxr) .LT. eps) THEN
             dyb = ndyb
             dyt = ndyt
@@ -217,17 +213,14 @@ SUBROUTINE calcPMLCoefficients
         dxl = ndxl
         dxr = ndxr
     ENDDO
-
     pmlayer%yb = yb + ndyb
     pmlayer%yt = yt - ndyt
     pmlayer%xl = xl + ndxl
     pmlayer%xr = xr - ndxr
-
     CALL calcZetaCoefficient(pmlayer%coeff_b, ndyb)
     CALL calcZetaCoefficient(pmlayer%coeff_t, ndyt)
     CALL calcZetaCoefficient(pmlayer%coeff_l, ndxl)
     CALL calcZetaCoefficient(pmlayer%coeff_r, ndxr)
-    
     CONTAINS
         SUBROUTINE calcZetaCoefficient(var, delta)
             REAL(kind=dp) :: delta, c, R, var
@@ -235,7 +228,6 @@ SUBROUTINE calcPMLCoefficients
             c = delta * omega / (2 * pi * mult)
             var = (3 * c) / (2 * (delta ** 3)) * LOG(1 / R)
         END SUBROUTINE calcZetaCoefficient
-        
 END SUBROUTINE calcPMLCoefficients
 \end{lstlisting}
 

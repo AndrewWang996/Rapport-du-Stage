@@ -27,7 +27,7 @@ $$u(x,t) = \sum\limits_{i=0}^n c_i(t)\phi_i(x)$$
 where $c_i(t)$ is merely a time-dependent coefficient and $\phi_i(x)$ is the space-dependent base function defined solely on its corresponding element.
 
 
-Here we let the use of the hat in $\hat{F}$ represent the reference element, and the lack of use represent the actual element.
+But an important observation that helps us significantly speed up the computation is realizing that we can perform all our integrals on a simple reference element, and then map it onto the actual element. Refer to Figure ~\ref{fig:Reference-Elements} for the visual definition of the reference element in 2 and 3 dimensions as well as the transformation mapping. Here we let the use of the hat in $\hat{F}$ represent the reference element, and the lack of use represent the actual element.
 
 
 \begin{figure}[ht]
@@ -42,17 +42,34 @@ Given an order $p$, the specific nodes on the reference element are defined as:
 
 $$(\hat{x_i}, \hat{y_j}, \hat{z_k}) = \left( \frac{i}{p}, \frac{j}{p}, \frac{k}{p} \right) \text{ for each } (i,j,k) \in \mathbb{N}^3 \mid i + j + k \leq p$$ 
 
-each element has a group of polynomials of a certain order defined on it. Those polynomials are defined such that, for certain nodes.
+In order to calculate the base functions for the arbitrary order $p$, we can use linear algebra. Namely, we wish to find the base function polynomials of the form:
 
+$$\sum\limits_{i+j+k \leq p} C_{i,j,k} x^i y^j z^k = \sum\limits_{j=1}^n C_j m_j(x)$$
+where we have $n$ nodes, $n$ polynomials, and $n$ monomials per polynomial. 
 
-In order to calculate the base functions for the arbitrary order $p$, we can use linear algebra. 
+Because the $i$'th polynomial takes a value of $1$ at the $i$'th node and $0$ at all the others, we can represent this relationship with a matrix equation, where the vector on the right is the $i$'th unit vector:
 
+$$\begin{bmatrix}
+m_1(x_1) & m_2(x_1) & m_3(x_1) & \ldots \\
+m_1(x_2) & m_2(x_2) & m_3(x_2) & \ldots \\
+m_1(x_3) & m_2(x_3) & m_3(x_3) & \ldots \\
+\ldots & \ldots & \ldots & \ldots 
+\end{bmatrix} 
+\begin{bmatrix}
+C_1 \\
+C_2 \\
+C_3 \\
+\ldots
+\end{bmatrix}
+= \begin{bmatrix}
+0 \\
+\ldots \\
+1 \\
+\ldots
+\end{bmatrix} $$
 
-Namely, we wish to find the base function polynomials of the form:
-
-$$\sum\limits_{i+j+k \leq p} C_{i,j,k} x^i y^j z^k $$. 
-
-Translate
+We can find the polynomial by computing the values of $C_j$,
+and summing their product with their corresponding monomials. For simplicity, represent the equation as $V \boldsymbol{C} = \boldsymbol{I}$. By multiplying both sides by $V^{-1}$, we have that $\boldsymbol{C}$ is equal to the $i$'th column of of $V^{-1}$. Thus, we have our $i$'th base function polynomial.
 
 \subsection{Decomposing u(x,t)}
 
