@@ -76,6 +76,8 @@ C_n
 We can find the polynomial by computing the values of $C_j$,
 and summing their product with their corresponding monomials. For simplicity, represent the equation as $S \boldsymbol{C} = \boldsymbol{I}$. By multiplying both sides by $S^{-1}$, we have that $\boldsymbol{C}$ is equal to the $i$'th column of of $S^{-1}$. Thus, we have our $i$'th base function polynomial.
 
+We will go into more depth about how to leverage the linear transformation between the reference element and the actual element in Section ~\ref{subsec: Transformation}. In fact, the method depends on the integral, especially on gradients, laplacians, and partial derivatives.
+
 \subsection{Variational / Weak Formulation (is that what it's called?)}
 
 In order to begin analyzing the acoustic wave equation, we multiply the equation by a test function $v(x,t)$. Do not worry too much about the purpose of the test function, a short summary is that without it, there is no guarantee of finding a function that satisfies the equation. Then we integrate over each element $E$:
@@ -107,7 +109,7 @@ The Mass Matrix $\mathcal{M}$ is defined as the matrix in front of the $\frac{\p
 
 In order to accomplish this, we rewrite $u(x,t)$ as its discontinuous space-dependent parts and time dependent parts:
 \begin{equation}
-$u(x,t) = c_1(t) \phi_1(x) + c_2(t) \phi_2(x) + \ldots + c_n(t) \phi_n(x)$
+u(x,t) = c_1(t) \phi_1(x) + c_2(t) \phi_2(x) + \ldots + c_n(t) \phi_n(x)
 \end{equation}
 
 With this method, we can then transform the equations into a linear matrix form. For example, take the term:
@@ -138,15 +140,15 @@ We want the equalities to be satisfied for any $v(x,t)$ in our function space, s
 
 \begin{equation}
 = \begin{bmatrix}
-\sum\limits_{i=1}^n \frac{\partial^2 c_i(t)}{\partial t^2} \int \phi_i \phi_1 dV \\
-\sum\limits_{i=1}^n \frac{\partial^2 c_i(t)}{\partial t^2} \int \phi_i \phi_2 dV \\
+\sum\limits_{i=1}^n \frac{\partial^2 c_i(t)}{\partial t^2} \int \phi_1 \phi_i dV \\
+\sum\limits_{i=1}^n \frac{\partial^2 c_i(t)}{\partial t^2} \int \phi_2 \phi_i dV \\
 \ldots \\
-\sum\limits_{i=1}^n \frac{\partial^2 c_i(t)}{\partial t^2} \int \phi_i \phi_n dV
+\sum\limits_{i=1}^n \frac{\partial^2 c_i(t)}{\partial t^2} \int \phi_n \phi_i dV
 \end{bmatrix}
 \end{equation}
 
 \begin{equation}
-\label{eq:Stiff-Mat}
+\label{eq:Mass-Mat}
 = \begin{bmatrix}
 \int \phi_1 \phi_1 dV & \int \phi_1 \phi_2 dV & \ldots & \int \phi_1 \phi_n dV \\
 \int \phi_2 \phi_1 dV & \int \phi_2 \phi_2 dV & \ldots & \int \phi_2 \phi_n dV \\
@@ -163,13 +165,108 @@ c_n(t)
 \end{equation}
 
 \begin{equation}
-\label{eq:Stiff-Var}
-= M \frac{\partial^2}{\partial t^2} U_h
+\label{eq:Mass-Var}
+= \mathcal{M} \frac{\partial^2}{\partial t^2} U_h
 \end{equation}
 
 where $M$ is the Mass matrix and $U_h$ is the vector of coefficients defining $u(x,t)$. This is possible for all of the matrices, and we will investigate further.
 
+
+\subsection{Mass Matrix Calculation}
+The value of the Mass Matrix $\mathcal{M}$ is given by Equation ~\ref{eq:Mass-Mat} and ~\ref{eq:Mass-Var}, and the entry at $(i,j)$ is calculated by:
+
+\begin{equation}
+\label{eq:Mass-Eq}
+\int_{\hat{E}} \phi_i \phi_j dV
+\end{equation}
+
+which is a simple job of integrating multivariate polynomials and can be done by utilizing 3rd party libraries such as SymPy, or by self-coding a polynomial integration system.
+ 
+\subsection{Damping Matrix Calculation}
+
+When using Perfectly Matched Layers, it is no longer necessary to decompose the laplacian to produce a boundary integral. Therefore, we do not have a term with the first derivative of time $\frac{\partial}{\partial t}$, and we do not have a Damping Matrix $\mathcal{A}$.
+
+\subsection{Stiffness Matrix Calculation}
+
+The value of the Stiffness Matrix $\mathcal{B}$ is found through a similar technique. Taking the term with no $t$ at all, we have 
+\begin{equation}
+\int_E \nabla \cdot \nabla u(x,t) v(x,t) dV
+\end{equation}
+
+Once again, we want the equalities to be satisfied for any $v(x,t)$ in our function space, so we just need to make sure that the equalities are satisfied for $v(x,t) = \phi_i(x)$ for all $i$. We can do this by using vector and matrix operations to represent multiple equations.
+
+\begin{equation}
+\begin{bmatrix}
+\int \nabla \cdot \nabla u(x,t) \phi_1 dV \\
+\int \nabla \cdot \nabla u(x,t) \phi_2 dV \\
+\ldots \\
+\int \nabla \cdot \nabla u(x,t) \phi_n dV
+\end{bmatrix}
+\end{equation}
+
+
+\begin{equation}
+= \begin{bmatrix}
+\int \phi_1 \sum\limits_{i=1}^n c_i(t) \nabla \cdot \nabla \phi_i dV \\
+\int \phi_2 \sum\limits_{i=1}^n c_i(t) \nabla \cdot \nabla \phi_i dV \\
+\ldots \\
+\int \phi_n \sum\limits_{i=1}^n c_i(t) \nabla \cdot \nabla \phi_i dV
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+= \begin{bmatrix}
+\sum\limits_{i=1}^n c_i(t) \int \phi_1 \nabla \cdot \nabla \phi_i dV \\
+\sum\limits_{i=1}^n c_i(t) \int \phi_2 \nabla \cdot \nabla \phi_i dV \\
+\ldots \\
+\sum\limits_{i=1}^n c_i(t) \int \phi_n \nabla \cdot \nabla \phi_i dV
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+\label{eq:Stiff-Mat}
+= \begin{bmatrix}
+\int \phi_1 \nabla \cdot \nabla \phi_1 dV & \int \phi_1 \nabla \cdot \nabla \phi_2 dV & \ldots & \int \phi_1 \nabla \cdot \nabla \phi_n dV \\
+\int \phi_2 \nabla \cdot \nabla \phi_1 dV & \int \phi_2 \nabla \cdot \nabla \phi_2 dV & \ldots & \int \phi_2 \nabla \cdot \nabla \phi_n dV \\
+\ldots & \ldots & \ldots & \ldots \\
+\int \phi_n \nabla \cdot \nabla \phi_1 dV & \int \phi_n \nabla \cdot \nabla \phi_2 dV & \ldots & \int \phi_n \nabla \cdot \nabla \phi_n dV \\
+\end{bmatrix} 
+\begin{bmatrix}
+c_1(t) \\
+c_2(t) \\
+\ldots \\
+c_n(t)
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+\label{eq:Stiff-Var}
+= \mathcal{B} U_h
+\end{equation}
+
+Thus, by Equations ~\ref{eq:Stiff-Mat}, ~\ref{eq:Stiff-Var} above, we have that the entry at the $(i,j)$ position in the Stiffness Matrix $\mathcal{B}$ is:
+
+\begin{equation}
+\label{eq:Stiff-Eq}
+\int \phi_i \nabla \cdot \nabla \phi_j dV
+\end{equation}
+
+\subsection{RHS Calculation}
+
+The term $\mathcal{F}$ on the right hand side (RHS) is:
+\begin{equation}
+\begin{bmatrix}
+\int f(x,t) \phi_1(x,t) dV \\
+\int f(x,t) \phi_2(x,t) dV \\
+\ldots \\
+\int f(x,t) \phi_n(x,t) dV
+\end{bmatrix}
+\end{equation}
+
+Given the source function $f(x,t)$, typically a Gaussian distribution multiplied by a Dirac delta function, the integrals in the vector $\mathcal{F}$ are fairly simple to calculate at any given time step. Only the entries in $\mathcal{F}$ that correspond to the element that contains the point source $f(x,t)$ will have integrals that evaluate to non-zero values.
+
 \subsection{Transformation}
+\label{subsec: Transformation}
 
 Because we are calculating the terms on the reference element $\hat{E}$ and not on the actual element $E$, we need to be able to map our obtained reference values to actual values. But first, it is necessary to define the linear transformation of the coordinates in terms of matrices and vectors. 
 
@@ -201,37 +298,14 @@ which we can see as a stretching of the reference element and then translation f
 Now, when we are changing variables in integrals to determine those integrals on the actual elements, we know that the Jacobian is $|\det A|$
 
 
+The integrals for which we need to shift coordinates are displayed in Equations ~\ref{eq:Mass-Eq}, ~\ref{eq:Stiff-Eq}.
 
-\subsection{Mass Matrix Calculation}
-The value of the Mass Matrix $\mathcal{M}$ is given by Equation ~\ref{eq:Stiff-Mat} and ~\ref{eq:Stiff-Var}, and the entry at $(i,j)$ is calculated by:
+For Equation ~\ref{eq:Mass-Eq}, there are no partial derivatives, so we may simply use the Jacobian that we derived earlier to compute the integral on actual elements:
 
 \begin{equation}
-$\int_{\hat{E}} \phi_i \phi_j dV$
+\int_E \hat{\phi}_i \hat{\phi}_j |\det A| dV
 \end{equation}
-
-which is a simple job of integrating multivariate polynomials and can be done by utilizing 3rd party libraries such as SymPy, or by self-coding a polynomial integration system.
  
-\subsection{Damping Matrix Calculation}
-
-When using Perfectly Matched Layers, it is no longer necessary to decompose the laplacian to produce a boundary integral. Therefore, we do not have a term with the first derivative of time $\frac{\partial}{\partial t}$, and we do not have a Damping Matrix $\mathcal{A}$.
-
-\subsection{Stiffness Matrix Calculation}
-
-The value of the Stiffness Matrix $\mathcal{B}$ is given by.
-
-\subsection{RHS Calculation}
-
-The term $\mathcal{F}$ on the right hand side (RHS) is:
-\begin{equation}
-\begin{bmatrix}
-\int f(x,t) \phi_1(x,t) dV \\
-\int f(x,t) \phi_2(x,t) dV \\
-\ldots \\
-\int f(x,t) \phi_n(x,t) dV
-\end{bmatrix}
-\end{equation}
-
-Given the source function $f(x,t)$, typically a Gaussian distribution multiplied by a Dirac delta function, the integrals in the vector $\mathcal{F}$ are fairly simple to calculate at any given time step. Only the entries in $\mathcal{F}$ that correspond to the element that contains the point source $f(x,t)$ will have integrals that evaluate to non-zero values.
 
 \subsection{Time Steps}
 
