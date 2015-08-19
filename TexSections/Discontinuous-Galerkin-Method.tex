@@ -78,7 +78,7 @@ and summing their product with their corresponding monomials. For simplicity, re
 
 We will go into more depth about how to leverage the linear transformation between the reference element and the actual element in Section ~\ref{subsec: Transformation}. In fact, the method depends on the integral, especially on gradients, laplacians, and partial derivatives.
 
-\subsection{Variational / Weak Formulation (is that what it's called?)}
+\subsection{Variational / Weak Formulation}
 
 In order to begin analyzing the acoustic wave equation, we multiply the equation by a test function $v(x,t)$. Do not worry too much about the purpose of the test function, a short summary is that without it, there is no guarantee of finding a function that satisfies the equation. Then we integrate over each element $E$:
 
@@ -105,14 +105,28 @@ We desire to rewrite Equation ~\ref{eq:Variational-Form} in terms of matrices. S
 \end{equation}
 
 
-The Mass Matrix $\mathcal{M}$ is defined as the matrix in front of the $\frac{\partial^2}{\partial t^2}$ term. The Damping Matrix $\mathcal{B}$ is defined as the matrix in front of the $\frac{\partial}{\partial t}$ term. The Stiffness Matrix $\mathcal{K}$ is defined as the matrix in front of the term with no $t$ at all.
+The Mass Matrix $\mathcal{M}$ is defined as the matrix in front of the $\frac{\partial^2}{\partial t^2}$ term. The Damping Matrix $\mathcal{B}$ is defined as the matrix in front of the $\frac{\partial}{\partial t}$ term. The Stiffness Matrix $\mathcal{K}$ is defined as the matrix in front of the term with no $t$ at all. 
 
-In order to accomplish this, we rewrite $u(x,t)$ as its discontinuous space-dependent parts and time dependent parts:
+We also rewrite $u(x,t)$ as its discontinuous space-dependent parts and time dependent parts:
 \begin{equation}
 u(x,t) = c_1(t) \phi_1(x) + c_2(t) \phi_2(x) + \ldots + c_n(t) \phi_n(x)
 \end{equation}
 
-With this method, we can then transform the equations into a linear matrix form. For example, take the term:
+where \begin{equation}
+U_h = \begin{bmatrix}
+c_1(t) \\
+c_2(t) \\
+\ldots \\
+c_n(t)
+\end{bmatrix}
+\end{equation}
+
+With this method, we can then transform the equations into a discretized linear matrix form. We will go over this in detail later. 
+
+
+\subsection{Mass Matrix Calculation}
+
+We begin with the formula below, and attempt to transform it into a matrix form.
 
 \begin{equation}
 \int_E \frac{\partial^2 u(x,t)}{\partial t^2} v(x,t) dV
@@ -169,10 +183,8 @@ c_n(t)
 = \mathcal{M} \frac{\partial^2}{\partial t^2} U_h
 \end{equation}
 
-where $M$ is the Mass matrix and $U_h$ is the vector of coefficients defining $u(x,t)$. This is possible for all of the matrices, and we will investigate further.
+where $M$ is the Mass matrix and $U_h$ is the vector of coefficients defining $u(x,t)$. 
 
-
-\subsection{Mass Matrix Calculation}
 The value of the Mass Matrix $\mathcal{M}$ is given by Equation ~\ref{eq:Mass-Mat} and ~\ref{eq:Mass-Var}, and the entry at $(i,j)$ is calculated by:
 
 \begin{equation}
@@ -180,7 +192,7 @@ The value of the Mass Matrix $\mathcal{M}$ is given by Equation ~\ref{eq:Mass-Ma
 \int_{\hat{E}} \phi_i \phi_j dV
 \end{equation}
 
-which is a simple job of integrating multivariate polynomials and can be done by utilizing 3rd party libraries such as SymPy, or by self-coding a polynomial integration system.
+which is a simple job of integrating multivariate polynomials and can be done by utilizing third party libraries such as SymPy, or by self-coding a polynomial integration system.
  
 \subsection{Damping Matrix Calculation}
 
@@ -247,8 +259,16 @@ c_n(t)
 Thus, by Equations ~\ref{eq:Stiff-Mat}, ~\ref{eq:Stiff-Var} above, we have that the entry at the $(i,j)$ position in the Stiffness Matrix $\mathcal{B}$ is:
 
 \begin{equation}
-\label{eq:Stiff-Eq}
+\label{eq:Stiff-Eq-PML}
 \int \phi_i \nabla \cdot \nabla \phi_j dV
+\end{equation}
+
+
+
+NEW EQUATION BITCH
+\begin{equation}
+\label{eq:Stiff-Eq-ABC}
+\int \nabla \phi_i \cdot \nabla \phi_j dV
 \end{equation}
 
 \subsection{RHS Calculation}
@@ -273,7 +293,13 @@ Because we are calculating the terms on the reference element $\hat{E}$ and not 
 Once again, we reference Figure ~\ref{fig:Reference-Elements} for the definition of $\boldsymbol{\hat{x_1}}, \boldsymbol{\hat{x_2}}, \boldsymbol{\hat{x_3}}, \boldsymbol{\hat{x_4}}, \boldsymbol{x_1}, \boldsymbol{x_2}, \boldsymbol{x_3}, \boldsymbol{x_4}$. Then we have the relation:
 
 \begin{equation}
-F_E(\hat{x}, \hat{y}, \hat{z}) = A \begin{bmatrix}
+\label{eq:transform}
+\begin{bmatrix}
+x \\
+y \\
+z
+\end{bmatrix}
+= F_E(\hat{x}, \hat{y}, \hat{z}) = A \begin{bmatrix}
 \hat{x} \\ 
 \hat{y} \\ 
 \hat{z}
@@ -298,13 +324,84 @@ which we can see as a stretching of the reference element and then translation f
 Now, when we are changing variables in integrals to determine those integrals on the actual elements, we know that the Jacobian is $|\det A|$
 
 
-The integrals for which we need to shift coordinates are displayed in Equations ~\ref{eq:Mass-Eq}, ~\ref{eq:Stiff-Eq}.
+The integrals for which we need to shift coordinates are displayed in Equations ~\ref{eq:Mass-Eq}, ~\ref{eq:Stiff-Eq-ABC}, ~\ref{eq:Stiff-Eq-PML}.
 
-For Equation ~\ref{eq:Mass-Eq}, there are no partial derivatives, so we may simply use the Jacobian that we derived earlier to compute the integral on actual elements:
+\subsubsection{Mass Entries}
+
+For Equation ~\ref{eq:Mass-Eq} in the calculation of the Mass Matrix, we may simply use the Jacobian that we derived earlier to compute the integral on actual elements:
 
 \begin{equation}
-\int_E \hat{\phi}_i \hat{\phi}_j |\det A| dV
+\int_E \hat{\phi}_i \hat{\phi}_j |\det A| dV = |\det A| \int_E \hat{\phi}_i \hat{\phi}_j dV 
 \end{equation}
+
+\subsubsection{Stiffness Entries}
+
+This is slightly more difficult, because we have partial differential forms in the gradient operators. To calculate Equation ~\ref{eq:Stiff-Eq-ABC} on the reference element, we must determine $\nabla \phi(x,y,z) = <\frac{\partial \phi}{\partial x}, \frac{\partial \phi}{\partial y}, \frac{\partial \phi}{\partial z}>$ in terms of $\nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z}) = <\frac{\partial \phi}{\partial \hat{x}}, \frac{\partial \phi}{\partial \hat{y}}, \frac{\partial \phi}{\partial \hat{z}}>$.
+
+\begin{equation}
+\nabla \phi(x,y,z) = \begin{bmatrix}
+\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial x} \\
+\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial y} \\
+\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial z}
+\end{bmatrix}
+\end{equation}
+
+By the chain rule:
+\begin{equation}
+= \begin{bmatrix}
+\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \frac{\partial \hat{x}}{x} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \frac{\partial \hat{y}}{x} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \frac{\partial \hat{z}}{x} \\
+\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \frac{\partial \hat{x}}{y} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \frac{\partial \hat{y}}{y} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \frac{\partial \hat{z}}{y} \\
+\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \frac{\partial \hat{x}}{\partial z} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \frac{\partial \hat{y}}{\partial z} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \frac{\partial \hat{z}}{\partial z}
+\end{bmatrix} 
+\end{equation}
+
+\begin{equation}
+= \begin{bmatrix}
+\frac{\partial \hat{x}}{\partial x} & \frac{\partial \hat{y}}{\partial x} & \frac{\partial \hat{z}}{\partial x} \\
+\frac{\partial \hat{x}}{\partial y} & \frac{\partial \hat{y}}{\partial y} & \frac{\partial \hat{z}}{\partial y} \\
+\frac{\partial \hat{x}}{\partial z} & \frac{\partial \hat{y}}{\partial z} & \frac{\partial \hat{z}}{\partial z}
+\end{bmatrix} \nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z})
+\end{equation}
+
+
+In order to obtain the value of the matrix above, we look back to the vector Equation ~\ref{eq:transform}.
+
+\begin{equation}
+\begin{bmatrix}
+x \\
+y \\
+z
+\end{bmatrix}
+= A \begin{bmatrix}
+\hat{x} \\ 
+\hat{y} \\ 
+\hat{z}
+\end{bmatrix} + \boldsymbol{b}
+\end{equation}
+
+
+Taking the derivative with respect to $x,y,z$, and then multiplying by the inverse of $A$, we get:
+
+\begin{equation}
+A^{-1}\begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+= \begin{bmatrix}
+\frac{\partial \hat{x}}{\partial x} & \frac{\partial \hat{x}}{\partial y} & \frac{\partial \hat{x}}{\partial z} \\ 
+\frac{\partial \hat{y}}{\partial x} & \frac{\partial \hat{y}}{\partial y} & \frac{\partial \hat{y}}{\partial z} \\ 
+\frac{\partial \hat{z}}{\partial x} & \frac{\partial \hat{z}}{\partial y} & \frac{\partial \hat{z}}{\partial z}
+\end{bmatrix}
+\end{equation}
+
+Transposing gives us the desired matrix so that:
+
+\begin{equation}
+\nabla \phi(x,y,z) = A^{-T} \nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z})
+\end{equation}
+
+
  
 
 \subsection{Time Steps}
