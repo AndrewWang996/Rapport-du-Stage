@@ -15,7 +15,7 @@ The Discontinuous Galerkin Method is a method of resolving differential equation
 
 "Solving differential equations" (such as the acoustic wave equation) is a term that is commonly thrown around without much attention to the essential components in numerical analysis. For the common case, it means: \textbf{given a domain} (for example $[0,10]$ in one dimension or the unit sphere in three dimensions), we \textbf{take a mesh} (set of segments, triangles, tetrahedrons, etc) that covers the domain, and find the values of the variable we are solving for at \textbf{certain moments in time} and at \textbf{certain points in the domain} that are determined by the mesh.
 
-The Discontinuous Galerkin Method is a method to "solve differential equations". It can be considered a combination of Finite Element Methods (Continuous Galerkin) and Finite Volume Methods. In other words, Discontinuous Galerkin methods are finite element methods that use discontinuous basis functions, thus acquiring more robustness for discontinuous processes. Because the base function polynomials are discontinuous and do not extend over a large stencil,the  Discontinuous Galerkin Method is easily parallelized, and the Mass Matrix is able to be inverted by blocks. Like the Finite Volume Methods, Discontinuous Galerkin methods calculate surface integrals and fluxes of discontinuous terms.
+The Discontinuous Galerkin Method is a method frequently used to "solve differential equations". It can be considered a combination of Finite Element Methods (Continuous Galerkin) and Finite Volume Methods. In other words, Discontinuous Galerkin methods are finite element methods that use discontinuous basis functions, thus acquiring more robustness for discontinuous processes. Because the base function polynomials are discontinuous and do not extend over a large stencil,the  Discontinuous Galerkin Method is easily parallelized, and the Mass Matrix is able to be inverted by blocks. Like the Finite Volume Methods, Discontinuous Galerkin methods calculate surface integrals and fluxes of discontinuous terms.
 
 \subsection{Basis Functions}
 
@@ -334,34 +334,37 @@ For Equation ~\ref{eq:Mass-Eq} in the calculation of the Mass Matrix, we may sim
 \int_E \hat{\phi}_i \hat{\phi}_j |\det A| dV = |\det A| \int_E \hat{\phi}_i \hat{\phi}_j dV 
 \end{equation}
 
-\subsubsection{Stiffness Entries}
+\subsubsection{Stiffness Entries - ABC}
 
-This is slightly more difficult, because we have partial differential forms in the gradient operators. To calculate Equation ~\ref{eq:Stiff-Eq-ABC} on the reference element, we must determine $\nabla \phi(x,y,z) = <\frac{\partial \phi}{\partial x}, \frac{\partial \phi}{\partial y}, \frac{\partial \phi}{\partial z}>$ in terms of $\nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z}) = <\frac{\partial \phi}{\partial \hat{x}}, \frac{\partial \phi}{\partial \hat{y}}, \frac{\partial \phi}{\partial \hat{z}}>$.
+This is slightly more difficult, because we have partial differential forms in the gradient operators. To calculate Equation ~\ref{eq:Stiff-Eq-ABC} on the reference element, we must determine $\nabla \phi(x,y,z) = \left<\frac{\partial \phi}{\partial x}, \frac{\partial \phi}{\partial y}, \frac{\partial \phi}{\partial z}\right>$ in terms of $\nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z}) = \left<\frac{\partial \phi}{\partial \hat{x}}, \frac{\partial \phi}{\partial \hat{y}}, \frac{\partial \phi}{\partial \hat{z}}\right>$.
 
 \begin{equation}
 \nabla \phi(x,y,z) = \begin{bmatrix}
-\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial x} \\
-\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial y} \\
-\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial z}
+\dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial x} \\
+\dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial y} \\
+\dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial z}
 \end{bmatrix}
 \end{equation}
 
 By the chain rule:
 \begin{equation}
 = \begin{bmatrix}
-\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \frac{\partial \hat{x}}{x} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \frac{\partial \hat{y}}{x} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \frac{\partial \hat{z}}{x} \\
-\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \frac{\partial \hat{x}}{y} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \frac{\partial \hat{y}}{y} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \frac{\partial \hat{z}}{y} \\
-\frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \frac{\partial \hat{x}}{\partial z} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \frac{\partial \hat{y}}{\partial z} + \frac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \frac{\partial \hat{z}}{\partial z}
+\dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \dfrac{\partial \hat{x}}{\partial x} + \dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \dfrac{\partial \hat{y}}{\partial x} + \dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \dfrac{\partial \hat{z}}{\partial x} \\
+\dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \dfrac{\partial \hat{x}}{\partial y} + \dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \dfrac{\partial \hat{y}}{\partial y} + \dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \dfrac{\partial \hat{z}}{\partial y} \\
+\dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{x}} \dfrac{\partial \hat{x}}{\partial z} + \dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{y}} \dfrac{\partial \hat{y}}{\partial z} + \dfrac{\partial \hat{\phi}(\hat{x}, \hat{y}, \hat{z})}{\partial \hat{z}} \dfrac{\partial \hat{z}}{\partial z}
 \end{bmatrix} 
 \end{equation}
 
 \begin{equation}
 = \begin{bmatrix}
-\frac{\partial \hat{x}}{\partial x} & \frac{\partial \hat{y}}{\partial x} & \frac{\partial \hat{z}}{\partial x} \\
-\frac{\partial \hat{x}}{\partial y} & \frac{\partial \hat{y}}{\partial y} & \frac{\partial \hat{z}}{\partial y} \\
-\frac{\partial \hat{x}}{\partial z} & \frac{\partial \hat{y}}{\partial z} & \frac{\partial \hat{z}}{\partial z}
+\dfrac{\partial \hat{x}}{\partial x} & \dfrac{\partial \hat{y}}{\partial x} & \dfrac{\partial \hat{z}}{\partial x} \\
+\dfrac{\partial \hat{x}}{\partial y} & \dfrac{\partial \hat{y}}{\partial y} & \dfrac{\partial \hat{z}}{\partial y} \\
+\dfrac{\partial \hat{x}}{\partial z} & \dfrac{\partial \hat{y}}{\partial z} & \dfrac{\partial \hat{z}}{\partial z}
 \end{bmatrix} \nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z})
 \end{equation}
+
+
+
 
 
 In order to obtain the value of the matrix above, we look back to the vector Equation ~\ref{eq:transform}.
@@ -383,17 +386,19 @@ z
 Taking the derivative with respect to $x,y,z$, and then multiplying by the inverse of $A$, we get:
 
 \begin{equation}
+\newcommand{\dfracstrut}{\vphantom{\dfrac{\partial \hat{x}}{\partial x}}}
 A^{-1}\begin{bmatrix}
-1 & 0 & 0 \\
-0 & 1 & 0 \\
-0 & 0 & 1
+1 & 0 & 0 \dfracstrut \\
+0 & 1 & 0 \dfracstrut \\
+0 & 0 & 1 \dfracstrut
 \end{bmatrix}
 = \begin{bmatrix}
-\frac{\partial \hat{x}}{\partial x} & \frac{\partial \hat{x}}{\partial y} & \frac{\partial \hat{x}}{\partial z} \\ 
-\frac{\partial \hat{y}}{\partial x} & \frac{\partial \hat{y}}{\partial y} & \frac{\partial \hat{y}}{\partial z} \\ 
-\frac{\partial \hat{z}}{\partial x} & \frac{\partial \hat{z}}{\partial y} & \frac{\partial \hat{z}}{\partial z}
+\dfrac{\partial \hat{x}}{\partial x} & \dfrac{\partial \hat{x}}{\partial y} & \dfrac{\partial \hat{x}}{\partial z} \\ 
+\dfrac{\partial \hat{y}}{\partial x} & \dfrac{\partial \hat{y}}{\partial y} & \dfrac{\partial \hat{y}}{\partial z} \\ 
+\dfrac{\partial \hat{z}}{\partial x} & \dfrac{\partial \hat{z}}{\partial y} & \dfrac{\partial \hat{z}}{\partial z}
 \end{bmatrix}
 \end{equation}
+
 
 Transposing gives us the desired matrix so that:
 
@@ -402,7 +407,11 @@ Transposing gives us the desired matrix so that:
 \end{equation}
 
 
+\subsubsection{Stiffness Entries - PML}
  
+
+
+
 
 \subsection{Time Steps}
 
