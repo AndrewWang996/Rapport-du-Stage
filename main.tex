@@ -16,10 +16,10 @@
 \usepackage{subcaption}
 \usepackage[utf8]{inputenc}
 \usepackage{amsfonts}
+\usepackage{verbatim}
 
-
-\author{Andy Wang}
-\title{Rapport du Stage}
+\author{Edward Lee}
+\title{Mesh Creation for Finite Element Methods}
 
 \numberwithin{equation}{section}
 
@@ -47,6 +47,7 @@
 \tableofcontents
 \newpage
 
+\begin{comment}
 \part{Thanks}
 
 I thank Helene Barucq, for accepting me into this research group, encouraging me to "tutoyer le monde," and organizing workshops for the group. She is truly a welcoming and friendly personality.
@@ -58,33 +59,37 @@ I thank Simon Ettouati for the invaluable explanations he has given me on the El
 I thank Julien Diaz for the logistical work he went through to make sure that my stay in Pau went well.
 
 I thank the entire team at Magique 3D for their friendly and welcoming attitude, their patience with my mediocre French, good humor, especially Florian, Lionel, Hendrik, Ha, Vincent, Mamadou, Victor, Izar, Aralar, and Clia.
+\end{comment}
 
 
+\begin{comment}
 \part{Preface}
 
 After my first year of my Bachelors degree in Theoretical Mathematics at Massachusetts Institute of Technology, I chose an internship in applied mathematics in the context of petroleum seismic imaging. During the 2 months while I was at this internship, I gained a significant amount of knowledge, in both domains of geophysics and mathematics. Specifically, I learned the concepts behind various methods for solving Helmholtz equations acoustic and elastic wave equations by using Finite Element Methods, Finite Difference Methods, Discontinuous Galerkin Methods. Solving these equations by resolving 2D meshes allows one to simulate the propagation of waves in arbitrary media. This in turn facilitates methods such as Full-Waveform-Inversion, Kirchoff Migration, Reverse Time Migration. In the case of Reverse Time Migration, waves and inverse waves are used to calculate reflection coefficients in the media, in turn generating an image of the underground. However, the applications of this method extend beyond the petroleum industry. For example, by solving the Maxwell Equations, it is possible through subtle variations of the methods to generate an image of the suns subsurface, which is actually another project here at Magique3D.
+\end{comment}
 
-\input{TexSections/INRIA}
 
-\input{TexSections/Research-within-INRIA}
+% \input{TexSections/INRIA}
+
+% \input{TexSections/Research-within-INRIA}
 
 \input{TexSections/Petroleum-Exploration}
 
 \input{TexSections/Presentation-of-the-Problem}
 
-\input{TexSections/Discontinuous-Galerkin-Method}
+% \input{TexSections/Discontinuous-Galerkin-Method}
 
 \input{TexSections/Mesh-Creation}
 
 \input{TexSections/PML-Coefficients-Automation}
 
-\input{TexSections/Numerical-Results}
+% \input{TexSections/Numerical-Results}
 
 \input{TexSections/Conclusions}
 
 \input{TexSections/Bibliography}
 
 
-\includegraphics[width=\textwidth]{Images/follow-your-dreams.jpg}
+% \includegraphics[width=\textwidth]{Images/follow-your-dreams.jpg}
 
 \end{document}
