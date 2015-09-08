@@ -410,8 +410,35 @@ Transposing gives us the desired matrix so that:
 \subsubsection{Stiffness Entries - PML}
  
 
+\subsection{Applying ABC's}
+
+Different Absorbing Boundary Conditions are required for different differential equations and different domain boundary forms. In the case of two dimensions, the commonly used second order ABC of the Enquist Majda type is:
+
+\begin{equation}
+\frac{\partial^2 u(x,y,t)}{\partial t^2} + \frac{\partial^2 u(x,y,t)}{\partial x \partial t} - \frac{1}{2} \frac{\partial^2 u(x,y,t)}{\partial y^2} = 0
+\label{eq:Enquist-Majda}
+\end{equation}
+
+We can apply Absorbing Boundary Conditions by plugging Equation ~\ref{eq:Enquist-Majda} into the boundary term in the weak formulation, Equation ~\ref{eq:Variational-Form}:
+
+\begin{equation}
+\int_{\Gamma_E} c^2 v(x,t) \nabla u(x,t) \cdot dS
+\end{equation}
 
 
+
+\subsection{Applying PML's}
+
+Perfectly Matched Layers are used to absorb waves propagating in a certain direction. We first extend our computational domain by an additional layer in which we modify our derivatives by a complex scaling factor:
+
+\begin{equation}
+\partial_x \rightarrow \left( 1 + i \frac{\sigma(x)}{\omega} \right) \partial_x
+\end{equation}
+
+Thus, if we are using a square domain in two dimensions, we will add four separate PML's to reduce waves propagating in both X, Y directions.
+
+
+This modifies the dispersion relation of your system such that traveling wave modes in the exterior layer are damped. Here, $\sigma$ is chosen such that is zero at the boundary of your physical domain $\partial \Omega$ and increases towards the end of our layer, thus slowly increasing the damping. A function like $\text{erf}(x)=\frac{1}{\sqrt{\pi}}\int_0^x \exp(−s^2) ds$ might work well for $\sigma$, but we need to rescale it so that it starts at zero at the physical boundary. It is necessary to test several values with the parameters $\sigma$ and $\omega$ to get good results.
 
 \subsection{Time Steps}
 

@@ -1,7 +1,7 @@
 \newpage
 \section{Mesh Creation} \label{Mesh-Creation}
 
-In order to solve the wave equation in arbitrary media, both acoustic and elastic, it is necessary to create a mesh of elements, also known as simplexes, that allows the computation to be split into a collection of smaller and simpler computations on each element; the smaller solutions can then be collected into the overall solution given those arbitrary media. 
+In order to solve the wave equation in arbitrary media, both acoustic and elastic, it is necessary to create a mesh of elements, also known as simplexes, that allows the computation to be split into a collection of smaller and simpler computations on each element; the smaller solutions can then be collected into the overall solution given those arbitrary media. Here we use third party programs to split the domain into meshes of triangles and tetrahedrons. 
 
 \subsection{Format of the .poly file}
 
@@ -94,7 +94,7 @@ Part 4 - region attributes list
 \label{fig:originalCouches5}
 \end{figure}
 
-The problem in 2 dimensions is, given the original points in 2D, how can we define an arbitrary interface between the water and the wet sand layer? In order to allow the Absorbing Boundary Conditions to be effective, new points with negative coordinates were added to the image. How can we apply an affine transformation to the points so that the image has arbitrary dimensions $(X,Y)$ and lies within the frame $[(0,0),(X,Y)]$? 
+The problem in 2 dimensions is, given the original points, how can we define an arbitrary interface between the water and the wet sand layer? In order to allow Absorbing Boundary Conditions to be effective, new points with negative coordinates were added to the image. How can we apply an affine transformation to the points so that the new image has arbitrary dimensions $(X,Y)$ and lies within the frame $[(0,0),(X,Y)]$? 
 
 In order to extend the mesh creation to 3 dimensions, the problem of defining an arbitrary interface remains, as well as being able to apply an arbitrary dip / slope in the Y direction. 
 
@@ -114,7 +114,7 @@ The second problem is creating the arbitrary interface between the water and the
 
 \begin{enumerate}
 \item Determine the two original endpoints of the interface as well as the height after the affine transform. This step can be done during the parsing stage.
-\item Find the values of the function at each step in the X direction while transforming the values to have the desired amplitude at the original height: $(x,y) \rightarrow (x, \text{originalHeight} + y * \text{desiredAmplitude} / (\text{maxY} - \text{minY})$
+\item Find the values of the function at each step in the X direction while transforming the values to have the desired amplitude at the original height: $(x,y) \rightarrow (x, \text{originalHeight} + (y)( \text{desiredAmplitude}) / (\text{maxY} - \text{minY})$
 \item Add the corresponding edges between each step. Replace the original endpoints with the new endpoints.
 \end{enumerate}
 
