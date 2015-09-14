@@ -37,7 +37,6 @@ But an important observation that helps us significantly speed up the computatio
 	\label{fig:Reference-Elements}
 \end{figure}
 
-
 Given an order $p$, the specific nodes on the reference element are defined as:
 
 $$(\hat{x_i}, \hat{y_j}, \hat{z_k}) = \left( \frac{i}{p}, \frac{j}{p}, \frac{k}{p} \right) \text{ for each } (i,j,k) \in \mathbb{N}^3 \mid i + j + k \leq p$$ 
@@ -83,7 +82,7 @@ We will go into more depth about how to leverage the linear transformation betwe
 In order to begin analyzing the acoustic wave equation, we multiply the equation by a test function $v(x,t)$. Do not worry too much about the purpose of the test function, a short summary is that without it, there is no guarantee of finding a function that satisfies the equation. Then we integrate over each element $E$:
 
 \begin{equation} 
-\int_E \nabla \cdot \nabla u(x,t) v(x,t) dV + \int_E \frac{\partial^2 u(x,t)}{\partial t^2} v(x,t) dV = \int_E f(x,t) v(x,t) dV 
+\int_E \nabla \cdot \nabla u(x,t) v(x,t) dV - \int_E \frac{\partial^2 u(x,t)}{\partial t^2} v(x,t) dV = \int_E f(x,t) v(x,t) dV 
 \end{equation}
 
 Frequently, we need to decompose the integral of the laplacian operator $\nabla \cdot \nabla$ on the domain of the element into an integral on the domain of the element's boundary face in order to place Absorbing Boundary Conditions (new set of differential equations) on the boundary face. In order to do that, we apply Green's first identity to obtain:
@@ -136,10 +135,10 @@ We want the equalities to be satisfied for any $v(x,t)$ in our function space, s
 
 \begin{equation}
 \begin{bmatrix}
-\int u(x,t) \phi_1 dV \\
-\int u(x,t) \phi_2 dV \\
+\int \frac{\partial^2 u(x,t)}{\partial t^2} \phi_1 dV \\
+\int \frac{\partial^2 u(x,t)}{\partial t^2} \phi_2 dV \\
 \ldots \\
-\int u(x,t) \phi_n dV
+\int \frac{\partial{u(x,t)}}{\partial t^2} \phi_n dV
 \end{bmatrix}
 \end{equation}
 
@@ -200,7 +199,8 @@ When using Perfectly Matched Layers, it is no longer necessary to decompose the 
 
 \subsection{Stiffness Matrix Calculation}
 
-The value of the Stiffness Matrix $\mathcal{B}$ is found through a similar technique. Taking the term with no $t$ at all, we have 
+The value of the Stiffness Matrix $\mathcal{B}$ is found through a similar technique. We take all the terms without $t$, and use this term as an example:
+
 \begin{equation}
 \int_E \nabla \cdot \nabla u(x,t) v(x,t) dV
 \end{equation}
@@ -263,9 +263,13 @@ Thus, by Equations ~\ref{eq:Stiff-Mat}, ~\ref{eq:Stiff-Var} above, we have that 
 \int \phi_i \nabla \cdot \nabla \phi_j dV
 \end{equation}
 
+The same technique can be applied to finding the Stiffness Matrix terms for the integral:
 
+\begin{equation}
+\int_E \nabla u(x,t) \cdot \nabla v(x,t) dV
+\end{equation}
 
-NEW EQUATION BITCH
+in which the term at position $(i,j)$ is simply
 \begin{equation}
 \label{eq:Stiff-Eq-ABC}
 \int \nabla \phi_i \cdot \nabla \phi_j dV
@@ -437,8 +441,7 @@ Perfectly Matched Layers are used to absorb waves propagating in a certain direc
 
 Thus, if we are using a square domain in two dimensions, we will add four separate PML's to reduce waves propagating in both X, Y directions.
 
-
-This modifies the dispersion relation of your system such that traveling wave modes in the exterior layer are damped. Here, $\sigma$ is chosen such that is zero at the boundary of your physical domain $\partial \Omega$ and increases towards the end of our layer, thus slowly increasing the damping. A function like $\text{erf}(x)=\frac{1}{\sqrt{\pi}}\int_0^x \exp(−s^2) ds$ might work well for $\sigma$, but we need to rescale it so that it starts at zero at the physical boundary. It is necessary to test several values with the parameters $\sigma$ and $\omega$ to get good results.
+This modifies the dispersion relation of your system such that traveling wave modes in the exterior layer are damped. Here, $\sigma$ is chosen such that is zero at the boundary of your physical domain $\partial \Omega$ and increases towards the end of our layer, thus slowly increasing the damping. A function like $\text{erf}(x)=\frac{1}{\sqrt{\pi}}\int_0^x \exp(-s^2) ds$ might work well for $\sigma$, but we need to rescale it so that it starts at zero at the physical boundary. It is necessary to test several values with the parameters $\sigma$ and $\omega$ to get good results.
 
 \subsection{Time Steps}
 
