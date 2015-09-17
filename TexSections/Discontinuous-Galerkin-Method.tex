@@ -197,6 +197,8 @@ which is a simple job of integrating multivariate polynomials and can be done by
 
 When using Perfectly Matched Layers, it is no longer necessary to decompose the laplacian to produce a boundary integral. Therefore, we do not have a term with the first derivative of time $\frac{\partial}{\partial t}$, and we do not have a Damping Matrix $\mathcal{A}$.
 
+However, if we use Absorbing Boundary Conditions and replace terms with our ABC equations, then we obtain terms with $\frac{\partial}{\partial t}$ that we can evaluate to a matrix form in the same way we evaluated the Mass Matrix.
+
 \subsection{Stiffness Matrix Calculation}
 
 The value of the Stiffness Matrix $\mathcal{B}$ is found through a similar technique. We take all the terms without $t$, and use this term as an example:
@@ -335,7 +337,7 @@ The integrals for which we need to shift coordinates are displayed in Equations 
 For Equation ~\ref{eq:Mass-Eq} in the calculation of the Mass Matrix, we may simply use the Jacobian that we derived earlier to compute the integral on actual elements:
 
 \begin{equation}
-\int_E \hat{\phi}_i \hat{\phi}_j |\det A| dV = |\det A| \int_E \hat{\phi}_i \hat{\phi}_j dV 
+\int_E \phi_i \phi_j dV = \int_{\hat{E}} \hat{\phi}_i \hat{\phi}_j |\det A| dV = |\det A| \int_{\hat{E}} \hat{\phi}_i \hat{\phi}_j dV 
 \end{equation}
 
 \subsubsection{Stiffness Entries - ABC}
@@ -411,6 +413,10 @@ Transposing gives us the desired matrix so that:
 \end{equation}
 
 
+\begin{equation}
+\int_E \phi_i \phi_j dV = \int_{\hat{E}} \hat{\phi}_i \hat{\phi}_j |\det A| dV = |\det A| \int_{\hat{E}} \hat{\phi}_i \hat{\phi}_j dV 
+\end{equation}
+
 \subsubsection{Stiffness Entries - PML}
  
 
@@ -458,7 +464,7 @@ Up until now, we have been working out the details of determining the values of 
 
 
 
-And we are done :)
+And we are done.
 
 
 
