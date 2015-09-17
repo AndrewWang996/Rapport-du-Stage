@@ -373,7 +373,7 @@ By the chain rule:
 
 
 
-In order to obtain the value of the matrix above, we look back to the vector Equation ~\ref{eq:transform}.
+In order to obtain the value of the matrix above, we look back to the vector Equation ~\ref{eq:transform}, remembering that $A_E$ refers to the transformation to the current element $E$.
 
 \begin{equation}
 \begin{bmatrix}
@@ -381,7 +381,7 @@ x \\
 y \\
 z
 \end{bmatrix}
-= A \begin{bmatrix}
+= A_E \begin{bmatrix}
 \hat{x} \\ 
 \hat{y} \\ 
 \hat{z}
@@ -389,11 +389,11 @@ z
 \end{equation}
 
 
-Taking the derivative with respect to $x,y,z$, and then multiplying by the inverse of $A$, we get:
+Taking the derivative with respect to $x,y,z$, and then multiplying by the inverse of $A_E$, we get:
 
 \begin{equation}
 \newcommand{\dfracstrut}{\vphantom{\dfrac{\partial \hat{x}}{\partial x}}}
-A^{-1}\begin{bmatrix}
+A_E^{-1}\begin{bmatrix}
 1 & 0 & 0 \dfracstrut \\
 0 & 1 & 0 \dfracstrut \\
 0 & 0 & 1 \dfracstrut
@@ -409,20 +409,51 @@ A^{-1}\begin{bmatrix}
 Transposing gives us the desired matrix so that:
 
 \begin{equation}
-\nabla \phi(x,y,z) = A^{-T} \nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z})
+\nabla \phi(x,y,z) = A_E^{-T} \nabla \hat{\phi}(\hat{x}, \hat{y}, \hat{z})
 \end{equation}
 
 
 \begin{equation}
-\int_E \phi_i \phi_j dV = \int_{\hat{E}} \hat{\phi}_i \hat{\phi}_j |\det A| dV = |\det A| \int_{\hat{E}} \hat{\phi}_i \hat{\phi}_j dV 
+\int_E \nabla \phi_i \cdot \nabla \phi_j dV 
+= \int_{\hat{E}} \left( A_E^{-T} \nabla \hat{\phi}_i \right) \cdot \left( A_E^{-T} \nabla \hat{\phi}_j \right) |\det A_E| dV 
+\end{equation}
+\begin{equation}
+= |\det A_E| \int_{\hat{E}} \nabla \hat{\phi}_i^T A_E^{-1} A_E^{-T} \nabla \hat{\phi}_j dV 
 \end{equation}
 
+Note here that due to the product of the matrices in the integral, it becomes necessary to precompute the values of the product of the partial derivatives of the reference base functions. We define $C^E = A_E^{-1} A_E^{-T}$, and can see that $C^E$ is a symmetric matrix. It is therefore determined by the coefficients $C_{11}^E, C_{12}^E, C_{13}^E, C_{22}^E, C_{23}^E, C_{33}^E$. Then we may decompose the entire integrand as such, while saving values in the parentheses:
+
+\begin{dmath}
+\nabla \hat{\phi_i^T} A_E^{-1} A_E^{-T} \nabla \hat{\phi_j} 
+= C_{11}^E \left( \frac{\partial \hat{\phi_i}}{\partial \hat{x}} \frac{\partial \hat{\phi_j}}{\partial \hat{x}} \right) 
++ C_{12}^E \left( \frac{\partial \hat{\phi_i}}{\partial \hat{y}} \frac{\partial \hat{\phi_j}}{\partial \hat{x}} + \frac{\partial \hat{\phi_i}}{\partial \hat{x}} \frac{\partial \hat{\phi_j}}{\partial \hat{y}} \right) 
++ C_{13}^E \left(\frac{\partial \hat{\phi_i}}{\partial \hat{z}} \frac{\partial \hat{\phi_j}}{\partial \hat{x}} + \frac{\partial \hat{\phi_i}}{\partial \hat{x}} \frac{\partial \hat{\phi_j}}{\partial \hat{z}} \right)
++ C_{22}^E \left( \frac{\partial \hat{\phi_i}}{\partial \hat{y}} \frac{\partial \hat{\phi_j}}{\partial \hat{y}} \right)
++ C_{23}^E \left( \frac{\partial \hat{\phi_i}}{\partial \hat{z}} \frac{\partial \hat{\phi_j}}{\partial \hat{y}} + \frac{\partial \hat{\phi_i}}{\partial \hat{y}} \frac{\partial \hat{\phi_j}}{\partial \hat{z}} \right)
++ C_{33}^E \left( \frac{\partial \hat{\phi_i}}{\partial \hat{z}} \frac{\partial \hat{\phi_j}}{\partial \hat{z}} \right)
+\end{dmath}
+
 \subsubsection{Stiffness Entries - PML}
- 
+
+\begin{equation}
+\int_E \phi_i \nabla \cdot \nabla \phi_j dV
+\end{equation}
+
+\subsubsection{Damping Entries - ABC}
+
+Not sure which equation to put here?
+
+\subsubsection{Damping Entries - PML}
+
+As discussed before, when Perfectly Matched Layers are used to absorb incoming waves, our implementation does not require the Damping Matrix.
+
+\subsubsection{Right Hand Side Entries}
+
+Because the right hand side is a vector instead of a matrix, we can directly compute each entry instead of precomputing integrals on the reference element.
 
 \subsection{Applying ABC's}
 
-Different Absorbing Boundary Conditions are required for different differential equations and different domain boundary forms. In the case of two dimensions, the commonly used second order ABC of the Enquist Majda type is:
+Different Absorbing Boundary Conditions are required for different differential equations and different domain boundary forms. In the case of two dimensions, the commonly used second order Absorbing Boundary Condition of the Enquist Majda type is:
 
 \begin{equation}
 \frac{\partial^2 u(x,y,t)}{\partial t^2} + \frac{\partial^2 u(x,y,t)}{\partial x \partial t} - \frac{1}{2} \frac{\partial^2 u(x,y,t)}{\partial y^2} = 0
@@ -445,7 +476,7 @@ Perfectly Matched Layers are used to absorb waves propagating in a certain direc
 \partial_x \rightarrow \left( 1 + i \frac{\sigma(x)}{\omega} \right) \partial_x
 \end{equation}
 
-Thus, if we are using a square domain in two dimensions, we will add four separate PML's to reduce waves propagating in both X, Y directions.
+Thus, if we are using a square domain in two dimensions, we will add four separate Perfectly Matched Layers to reduce waves propagating in both X, Y directions.
 
 This modifies the dispersion relation of your system such that traveling wave modes in the exterior layer are damped. Here, $\sigma$ is chosen such that is zero at the boundary of your physical domain $\partial \Omega$ and increases towards the end of our layer, thus slowly increasing the damping. A function like $\text{erf}(x)=\frac{1}{\sqrt{\pi}}\int_0^x \exp(-s^2) ds$ might work well for $\sigma$, but we need to rescale it so that it starts at zero at the physical boundary. It is necessary to test several values with the parameters $\sigma$ and $\omega$ to get good results.
 
